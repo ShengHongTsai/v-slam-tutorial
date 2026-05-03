@@ -1,6 +1,6 @@
-#include <iostream>
+#include "lib_hello_slam.h"
 
 int main() {
-    std::cout << "Hello SLAM!" << std::endl;
+    printHello();
     return 0;
 }
