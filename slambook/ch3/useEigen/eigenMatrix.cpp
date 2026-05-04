@@ -35,7 +35,31 @@ int main(int argc, char **argv) {
     Eigen::Matrix<double, 2, 1> result = matrix_23.cast<double>() * v_3d;
     cout << "result: " << endl << result.transpose() << endl;
 
-    
+    matrix_33 = Eigen::Matrix3d::Random();
+    cout << "random matrix 3x3: " << endl << matrix_33 << '\n' <<endl;
+
+    cout << matrix_33.transpose() << '\n' << endl;
+    cout << matrix_33.sum() << '\n' << endl;
+    cout << matrix_33.trace() << '\n' << endl;
+    cout << 10 * matrix_33 << '\n' << endl;
+    cout << matrix_33.inverse() << '\n' << endl;
+    cout << matrix_33.determinant() << '\n' << endl;
+
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigen_solver(matrix_33.transpose() * matrix_33);
+    cout << "eigen values = " << eigen_solver.eigenvalues().transpose() << endl;
+    cout << "eigen vectors = " << endl << eigen_solver.eigenvectors() << endl;
+
+    // Solve matrix_NN * x = v_Nd
+    Eigen::Matrix<double, MATRIX_SIZE, MATRIX_SIZE> matrix_NN = Eigen::MatrixXd::Random(MATRIX_SIZE, MATRIX_SIZE);
+    Eigen::Matrix<double, MATRIX_SIZE, 1> v_Nd = Eigen::MatrixXd::Random(MATRIX_SIZE, 1);
+    clock_t time_stt = clock(); // start time
+    // direct inverse
+    Eigen::Matrix<double, MATRIX_SIZE, 1> x = matrix_NN.inverse() * v_Nd;
+    cout << "time of normal inverse is " << 1000 * (clock() - time_stt) / (double)CLOCKS_PER_SEC << "ms" << endl;   
+
+    time_stt = clock(); // start time
+    x = matrix_NN.colPivHouseholderQr().solve(v_Nd); // QR decomposition
+    cout << "time of Qr decomposition is " << 1000 * (clock() - time_stt) / (double)CLOCKS_PER_SEC << "ms" << endl; 
 
     return 0;
 }
