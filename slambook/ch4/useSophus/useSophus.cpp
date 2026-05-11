@@ -16,7 +16,7 @@ int main()
 
     // Convert to Sophus SO3
     Sophus::SO3 SO3_R(R);
-    Sophus::SO3 SO3_v(0, 0, M_PI/  2); // Rotate 90 degrees around X-axis
+    Sophus::SO3 SO3_v(0, 0, M_PI/  2); // Rotate 90 degrees around Z-axis
     Eigen::Quaterniond q(R);
     Sophus::SO3 SO3_q(q);
 
@@ -38,6 +38,26 @@ int main()
     Eigen::Vector3d update_so3 = Eigen::Vector3d(1e-4, 0, 0); // Small update
     Sophus::SO3 SO3_updated = Sophus::SO3::exp(update_so3) * SO3_R; // Update the SO3 element
     cout << "Updated SO3 after applying small update:\n" << SO3_updated.matrix() << endl;
+
+    Eigen::Vector3d t(1, 0, 0);
+    Sophus::SE3 SE3_Rt(R, t); // SE3 element from R and translation
+    Sophus::SE3 SE3_qt(q, t); // SE3 element from q and translation
+    cout << "SE3 from Rotation Matrix and Translation:\n" << SE3_Rt.matrix() << endl;
+    cout << "SE3 from Quaternion and Translation:\n" << SE3_qt.matrix() << endl;
+    
+    typedef Eigen::Matrix<double, 6, 1> Vector6d;
+    Vector6d se3 = SE3_Rt.log(); // Get the Lie algebra
+    cout << "se3 (Lie algebra of SE3):\n" << se3.transpose() << endl;
+    cout << "se3 hat (4x4 matrix):\n" << Sophus::SE3::hat(se3) << endl;
+    cout << "se3 vee (vector from 4x4 matrix):\n"
+        << Sophus::SE3::vee(Sophus::SE3::hat(se3)).transpose() << endl;
+
+
+    Vector6d update_se3 = Vector6d(1e-4, 0, 0, 0, 0, 0); // Small update
+    update_se3.setZero();
+    update_se3(0, 0) = 1e-4; // Small update in the first component (rotation around x-axis)
+    Sophus::SE3 SE3_updated = Sophus::SE3::exp(update_se3) * SE3_Rt; // Update the SE3 element
+    cout << "Updated SE3 after applying small update:\n" << SE3_updated.matrix() << endl;
 
     return 0;
 }
